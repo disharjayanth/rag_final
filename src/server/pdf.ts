@@ -1,5 +1,5 @@
 // import { pool } from "@/server/db";
-import { createVectorStore, createVectorStoreForSupaBase } from './embeddings';
+import {  createVectorStoreForSupaBase } from './embeddings';
 import {createClient} from "@supabase/supabase-js"
 
 // import { CanvasFactory } from 'pdf-parse/worker';

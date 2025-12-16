@@ -5,7 +5,7 @@ import {createClient} from "@supabase/supabase-js"
 
 // dotenv.config();
 const supabase = createClient(String(process.env.YOUR_PROJECT_URL), String(process.env.YOUR_SUPABASE_API_KEY))
-console.log(process.env.YOUR_PROJECT_URL, process.env.YOUR_SUPABASE_API_KEY)
+// console.log(process.env.YOUR_PROJECT_URL, process.env.YOUR_SUPABASE_API_KEY)
 
 if (!process.env.GOOGLE_API_KEY) {
   throw new Error("GOOGLE_API_KEY is missing");

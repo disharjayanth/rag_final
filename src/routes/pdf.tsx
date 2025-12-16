@@ -30,8 +30,9 @@ function RouteComponent() {
   const [response, setResponse] = useState("");
   const [llmResponse, setLlmResponse] = useState("");
   const [userId, setUserId] = useState<string | null >(null);
+  const [pdfUploading, setPdfUploading] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   
 
   useEffect(() => {
@@ -76,6 +77,7 @@ function RouteComponent() {
         ref={formRef}
         onSubmit={async (e) => {
           e.preventDefault();
+          setPdfUploading(true)
           const fd = new FormData(e.currentTarget);
           const pdfFile = fd.get("file")
           if (!pdfFile || !(pdfFile instanceof File)) {
@@ -93,8 +95,9 @@ function RouteComponent() {
 
           const res = await uploadPdf({ data: fd });
           setResponse(res.message);
+           
+          setPdfUploading(false)
           formRef.current?.reset();
-
         }}
 
         encType="multipart/form-data"
@@ -118,13 +121,13 @@ function RouteComponent() {
         </label>
 
         <button
-          type="submit"
-          className="
-            w-full py-3 rounded-xl bg-blue-500 text-white font-semibold 
-            hover:bg-blue-600 transition active:scale-95 shadow-md
-          "
+         type="submit"
+         disabled={pdfUploading}
+         className={`w-full py-3 rounded-xl text-white font-semibold 
+              ${pdfUploading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"} 
+              transition active:scale-95 shadow-md`}
         >
-          Upload
+          {pdfUploading ? "Uploading..." : "Upload"}
         </button>
 
         {response && (

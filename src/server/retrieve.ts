@@ -19,7 +19,6 @@ export async function retrieve(query: string, k=3) {
 
     const connectionString = process.env.SUPABASE_SQL_URL!;
     const supaBasePostGresSql = postgres(connectionString)
-    console.log("connection string:",connectionString)
     const chunEmbed_SupaBase = await supaBasePostGresSql`SELECT content FROM chunk_embeddings ORDER BY embeddings <-> ${vectorStr} LIMIT ${k}`
     console.log(chunEmbed_SupaBase.flat().map((r: any) => ({text: r.content})))
     const supaBaseLLMResponse = await askWithContext(query, chunEmbed_SupaBase.flat().map((r: any) => ({text: r.content})))
