@@ -11,6 +11,7 @@ count.txt
 .output
 .vinxi
 todos.json
+wrangler.jsonc
 ./src/server/.env
 
 # Local Netlify folder

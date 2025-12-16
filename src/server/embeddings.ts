@@ -1,9 +1,9 @@
 import { GoogleGenerativeAI  } from "@google/generative-ai";
-import { pool } from "./db";
+// import { pool } from "./db";
 import {createClient} from "@supabase/supabase-js"
-import dotenv from "dotenv";
+// import dotenv from "dotenv";
 
-dotenv.config();
+// dotenv.config();
 const supabase = createClient(String(process.env.YOUR_PROJECT_URL), String(process.env.YOUR_SUPABASE_API_KEY))
 console.log(process.env.YOUR_PROJECT_URL, process.env.YOUR_SUPABASE_API_KEY)
 
@@ -19,28 +19,28 @@ export async function embed(text: string) {
     return result.embedding.values
 }
 
-export async function createVectorStore(chunks: string[], documentId: string) {
-    const store: {chunk: string; vector: number[]}[] = [];
-    const values: string[] = [];
-    const params: any[] = [];
+// export async function createVectorStore(chunks: string[], documentId: string) {
+//     const store: {chunk: string; vector: number[]}[] = [];
+//     const values: string[] = [];
+//     const params: any[] = [];
 
-    let i = 1;
+//     let i = 1;
 
-    for (let [index,chunk] of chunks.entries()) {
-        const vector = await embed(chunk)
-        store.push({chunk, vector})
-        const vectorStor = `[${vector.join(',')}]`
+//     for (let [index,chunk] of chunks.entries()) {
+//         const vector = await embed(chunk)
+//         store.push({chunk, vector})
+//         const vectorStor = `[${vector.join(',')}]`
 
-        values.push(`($${i++}, $${i++}, $${i++}, $${i++}::text::vector)`)
-        params.push(documentId, index, chunk, vectorStor)
-    }
+//         values.push(`($${i++}, $${i++}, $${i++}, $${i++}::text::vector)`)
+//         params.push(documentId, index, chunk, vectorStor)
+//     }
 
-    // console.log(params)
+//     // console.log(params)
 
-    const sql = `INSERT INTO chunk_embeddings (document_id, chunk_index, content, embeddings) VALUES ${values.join(",")}`;
-    await pool.query(sql, params);
-    return store
-}
+//     const sql = `INSERT INTO chunk_embeddings (document_id, chunk_index, content, embeddings) VALUES ${values.join(",")}`;
+//     await pool.query(sql, params);
+//     return store
+// }
 
 export async function createVectorStoreForSupaBase(chunks: string[], documentId: string) {
     const rows = [];

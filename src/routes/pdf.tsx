@@ -4,7 +4,8 @@ import { useState, useRef, useEffect} from 'react';
 import {useMutation} from "@tanstack/react-query"
 import { supabase } from '@/lib/supabase';
 import { useNavigate } from "@tanstack/react-router";
-
+import { PDFParse } from 'pdf-parse';
+// import { getPath, getData } from 'pdf-parse/worker';
 
 export const Route = createFileRoute('/pdf')({
     component: RouteComponent,
@@ -76,11 +77,26 @@ function RouteComponent() {
         onSubmit={async (e) => {
           e.preventDefault();
           const fd = new FormData(e.currentTarget);
+          const pdfFile = fd.get("file")
+          if (!pdfFile || !(pdfFile instanceof File)) {
+               throw new Error("Invalid file!");
+          }
+
+          const pdfBuffer = await pdfFile.arrayBuffer()
+          // PDFParse.setWorker(getData());
+          PDFParse.setWorker('https://cdn.jsdelivr.net/npm/pdf-parse@latest/dist/pdf-parse/web/pdf.worker.mjs');
+          const pdfParser = new PDFParse({data: pdfBuffer })
+          const pdfContent = (await pdfParser.getText()).text;
+
           fd.append("userId", userId ?? "");
+          fd.append("pdfContent", pdfContent ?? "")
+
           const res = await uploadPdf({ data: fd });
           setResponse(res.message);
           formRef.current?.reset();
+
         }}
+
         encType="multipart/form-data"
         className="space-y-4"
       >

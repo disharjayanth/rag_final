@@ -21,6 +21,7 @@ function RouteComponent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   // Signup
@@ -28,7 +29,7 @@ function RouteComponent() {
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({ email, password });
     setLoading(false);
-    if (error) return alert(error.message);
+    if (error) return setError(error.message);
 
       navigate({ to: "/pdf" , replace: true });
   };
@@ -38,7 +39,7 @@ function RouteComponent() {
     setLoading(true);
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
-    if (error) return alert(error.message);
+    if (error) return setError(error.message);
 
       navigate({ to: "/pdf" , replace: true });
   };
@@ -103,9 +104,14 @@ function RouteComponent() {
       >
         Login
       </button>
-
+      {error && (
+        <p className="text-center text-sm text-red-500">
+          {error}
+        </p>
+      )}
     </div>
   </div>
 )
 }
+
 

@@ -1,4 +1,4 @@
-import { loadPdf, savePdf } from '@/server'
+import {  savePdf } from '@/server/pdf'
 import { retrieve } from '@/server/retrieve'
 import { createServerFn } from '@tanstack/react-start'
 // import { mkdir, writeFile } from 'fs/promises'
@@ -16,12 +16,12 @@ export const getPunkSongs = createServerFn({
   { id: 7, name: 'Beverly Hills', artist: 'Weezer' },
 ])
 
-export const callloadPdf = createServerFn({method: "GET"})
-.inputValidator((data: string ) => data)
-.handler(async({ data }) => {
-  const response = await loadPdf(data)
-  return response
-})
+// export const callloadPdf = createServerFn({method: "GET"})
+// .inputValidator((data: string ) => data)
+// .handler(async({ data }) => {
+//   const response = await loadPdf(data)
+//   return response
+// })
 
 export const callLlmWithQuery = createServerFn({method: "POST"})
 .inputValidator((data: string) => data)
@@ -34,13 +34,22 @@ export const uploadPdf = createServerFn({method: "POST"})
 .inputValidator((formData: FormData) => {
   const file = formData.get("file");
   const userId = formData.get("userId");
+  const pdfContent = formData.get("pdfContent")
+
   if (!file || !(file instanceof File)) {
     throw new Error("Invalid file!");
   }
-  return {file, userId}
+  if (!pdfContent || typeof pdfContent !== "string") {
+  throw new Error("Invalid or missing userId");
+  }
+
+  return {file, userId, pdfContent}
+  // return {file, userId}
 })
-.handler(async({ data: {file, userId} }) => {
-  const response = await savePdf(file, userId)
+.handler(async({ data: {file, userId, pdfContent} }) => {
+// .handler(async({ data: {file, userId} }) => {
+  const response = await savePdf(file, userId, pdfContent)
+  // const response = await savePdf(file, userId)
 
   return {
     message: "PDF uploaded successfully",
