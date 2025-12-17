@@ -64,13 +64,35 @@ function RouteComponent() {
   };
 
   return (
+    
   <div className="min-h-screen bg-white flex items-center justify-center p-6">
+<button
+  onClick={handleLogout}
+  className="
+    absolute top-4 right-4
+    px-4 py-2
+    bg-red-500 text-white text-sm font-semibold
+    rounded-lg
+    hover:bg-red-600 transition
+    active:scale-95
+    shadow
+  "
+>
+  Logout
+</button>
 
-    <div className="w-full max-w-2xl p-8 rounded-2xl shadow-xl border border-gray-200 bg-white backdrop-blur-xl">
+<div className="relative w-full max-w-2xl p-8 rounded-2xl shadow-xl border border-gray-200 bg-white backdrop-blur-xl">
 
-      <h1 className="text-3xl font-semibold text-gray-800 mb-6 text-center">
+      {/* <h1 className="text-3xl font-semibold text-gray-800 mb-6 text-center">
         PDF Upload & LLM Query
-      </h1>
+      </h1> */}
+
+      <div className="flex items-center justify-between mb-6">
+  <h1 className="text-3xl font-semibold text-gray-800">
+    PDF Upload & LLM Query
+  </h1>
+  
+</div>
 
       {/* PDF Upload Form */}
       <form
@@ -172,13 +194,6 @@ function RouteComponent() {
           </p>
         )}
       </div>
-
-      <button
-        onClick={handleLogout}
-        className="mt-8 w-full py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition active:scale-95 shadow-sm"
-      >
-        Logout
-      </button>
     </div>
   </div>
 )

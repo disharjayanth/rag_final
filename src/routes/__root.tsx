@@ -4,7 +4,7 @@ import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import Header from '../components/Header'
+// import Header from '../components/Header'
 
 import appCss from '../styles.css?url'
 
@@ -42,7 +42,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
        <QueryClientProvider client={queryClient}>
-           <Header />
+           {/* <Header /> */}
         {children}
         <TanStackDevtools
           config={{
