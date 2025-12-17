@@ -10,9 +10,9 @@ const supabase = createClient(String(process.env.YOUR_PROJECT_URL), String(proce
 console.log(process.env.YOUR_PROJECT_URL, process.env.YOUR_SUPABASE_API_KEY)
 
 
-export function chunkText(text: string, sieze = 800) {
+export function chunkText(text: string, sieze = 2000) {
     const chunks: string[] = []
-    for (let i = 0; i < text.length; i = i + 800) {
+    for (let i = 0; i < text.length; i = i + 2000) {
         chunks.push(text.slice(i, i + sieze))
     }
     return chunks
