@@ -37,6 +37,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   const queryClient = new QueryClient();
   return (
     <html lang="en">
+      
       <head>
         <HeadContent />
       </head>
