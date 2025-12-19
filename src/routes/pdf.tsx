@@ -113,7 +113,7 @@ const isAskDisabled =
     <div className="max-w-6xl mx-auto">
 
       {/* ================= TOP BAR ================= */}
-      <div className="flex flex-col sm:flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="flex flex-col sm:flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-3">
 
         {/* MOBILE LOGOUT: top-right */}
         <div className="flex justify-end lg:hidden">
@@ -127,14 +127,16 @@ const isAskDisabled =
 
         {/* LEFT: Upload + Question */}
         <div className="
-          flex flex-col sm:flex-col lg:flex-row lg:items-center w-full gap-3 sm:gap-4
-          bg-white sm:bg-transparent
-          p-4 sm:p-0
-          rounded-lg sm:rounded-none
-          shadow sm:shadow-none
-          transition-transform duration-200 ease-in-out
-          hover:shadow-lg hover:-translate-y-0.5
-        ">
+  flex flex-col sm:flex-col lg:flex-row lg:items-center w-full
+  gap-3 sm:gap-4
+  bg-white sm:bg-transparent
+  p-6 sm:p-4
+  rounded-lg sm:rounded-none
+  shadow sm:shadow-none
+  transition-all duration-200 ease-in-out
+  hover:shadow-lg hover:-translate-y-0.5
+">
+
           {/* File upload */}
           <form
             ref={formRef}
