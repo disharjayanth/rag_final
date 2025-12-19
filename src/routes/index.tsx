@@ -7,7 +7,7 @@ export const Route = createFileRoute('/')({
     ssr: false,
    loader: async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    console.log(session?.user)
+    // console.log(session?.user)
     if (session?.user) {
       throw redirect({
         to: "/pdf",

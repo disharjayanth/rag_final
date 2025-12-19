@@ -56,7 +56,7 @@ function RouteComponent() {
     const fetchUserPdf = async () => {
       let { data: documents, error } = await supabase.from("documents").select("id, user_id, title").eq("user_id", userId)
       setUserPdfs(documents!)
-      console.log(documents);
+      // console.log(documents);
       if (error != null) {
         console.log("error:", error)
       }
