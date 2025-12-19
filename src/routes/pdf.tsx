@@ -23,6 +23,12 @@ export const Route = createFileRoute('/pdf')({
 })
 
 function RouteComponent() {
+  type Document = {
+  id: string;
+  user_id: string;
+  title: string;
+}
+
   const { user } = Route.useRouteContext()
   // const user_Id = user.id
   // add loader or error will be thrown saying cant read property of id
@@ -31,37 +37,74 @@ function RouteComponent() {
   const [llmResponse, setLlmResponse] = useState("");
   const [userId, setUserId] = useState<string | null >(null);
   const [pdfUploading, setPdfUploading] = useState(false);
+  const [userPdfs, setUserPdfs] = useState<Document[]>([]);
+  const [selectedPdfId, setSelectedPdfId] = useState<string | null>(null);
+  const [askLocked, setAskLocked] = useState(false);
+
+
   const formRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
   
 
   useEffect(() => {
-    const { data: listener } = supabase.auth.onAuthStateChange(
+    let { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setUserId(session?.user?.id || null);
       }
     );
 
-    return () => listener.subscription.unsubscribe();
-  }, []);
+    const fetchUserPdf = async () => {
+      let { data: documents, error } = await supabase.from("documents").select("id, user_id, title").eq("user_id", userId)
+      setUserPdfs(documents!)
+      console.log(documents);
+      if (error != null) {
+        console.log("error:", error)
+      }
+    }
 
+    if (userId!=null) {
+      fetchUserPdf()
+    }
+
+    return () => listener.subscription.unsubscribe();
+
+  }, [userId]);
 
   const [message, setMessage] = useState("");
 
   const mutation = useMutation({
-    mutationFn: async () => {
-      return await callLlmWithQuery({data: message});
-    },
-    onSuccess: (data) => {
-      setLlmResponse(data);
-    }
-  });
+  mutationFn: async ({
+    message,
+    pdfId,
+  }: {
+    message: string;
+    pdfId: string;
+  }) => {
+    return await callLlmWithQuery({
+      data: { message, pdfId },
+    });
+  },
+  onSuccess: (data) => {
+    setLlmResponse(data);
+  },
+   onSettled: () => {
+    setAskLocked(false); 
+  },
+});
+
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) return alert(error.message);
     navigate({ to: "/" })
   };
+
+
+const isAskDisabled =
+  askLocked ||
+  mutation.isPending ||
+  !selectedPdfId ||
+  message.trim().length === 0;
 
   return (
    
@@ -151,13 +194,31 @@ function RouteComponent() {
           />
 
           {/* Ask button */}
-          <button
-            onClick={() => mutation.mutate()}
-            disabled={mutation.isPending}
-            className="w-full sm:w-auto px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition"
-          >
-            {mutation.isPending ? "Searching…" : "Ask"}
-          </button>
+         <button
+  onClick={() => {
+    if (!selectedPdfId) {
+      alert("Please select a PDF first");
+      return;
+    }
+
+    mutation.mutate({
+      message,
+      pdfId: selectedPdfId,
+    });
+  }}
+  disabled={isAskDisabled}
+  className={`
+    px-4 py-2 rounded-lg text-sm font-medium transition
+    ${
+      isAskDisabled
+        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+        : "bg-indigo-600 text-white hover:bg-indigo-700"
+    }
+      `}
+>
+  Ask
+</button>
+
         </div>
 
         {/* DESKTOP LOGOUT: inline right */}
@@ -196,5 +257,81 @@ function RouteComponent() {
       )}
     </div>
   </div>
+  {/* ================= USER PDF LIST ================= */}
+<div className="mt-10 max-w-6xl mx-auto">
+  <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+
+    {/* Header */}
+    <div className="px-5 py-4 border-b bg-gradient-to-r from-gray-50 to-white">
+      <h2 className="text-lg font-semibold text-gray-800">
+        📄 Your PDFs
+      </h2>
+      <p className="text-sm text-gray-500 mt-1">
+        Logged in as <span className="font-medium">{user.email}</span>
+      </p>
+    </div>
+
+    {/* PDF List */}
+    <div className="max-h-[320px] overflow-y-auto divide-y">
+      {userPdfs.length === 0 && (
+        <div className="px-5 py-6 text-sm text-gray-500 text-center">
+          No PDFs uploaded yet
+        </div>
+      )}
+
+      {userPdfs.map((pdf) => {
+        const isSelected = selectedPdfId === pdf.id;
+
+        return (
+          <div
+            key={pdf.id}
+            onClick={() => setSelectedPdfId(pdf.id)}
+            className={`
+              px-5 py-3 cursor-pointer transition-all
+              flex items-center justify-between
+              ${isSelected
+                ? "bg-indigo-50 border-l-4 border-indigo-500"
+                : "hover:bg-gray-50"}
+            `}
+          >
+            {/* Left */}
+            <div className="flex items-center gap-3 min-w-0">
+              <div
+                className={`
+                  h-9 w-9 flex items-center justify-center rounded-lg
+                  ${isSelected ? "bg-indigo-600 text-white" : "bg-gray-200 text-gray-600"}
+                `}
+              >
+                📘
+              </div>
+
+              <div className="min-w-0">
+                <p
+                  className={`
+                    text-sm font-medium truncate
+                    ${isSelected ? "text-indigo-700" : "text-gray-800"}
+                  `}
+                >
+                  {pdf.title}
+                </p>
+                <p className="text-xs text-gray-400 truncate">
+                  ID: {pdf.id}
+                </p>
+              </div>
+            </div>
+
+            {/* Selected badge */}
+            {isSelected && (
+              <span className="text-xs font-semibold text-indigo-600">
+                Selected
+              </span>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  </div>
+</div>
+
 </div>
     )}

@@ -3,7 +3,7 @@ import { embed } from "./embeddings.ts";
 import { llm } from "./llm.ts";
 import postgres from "postgres"
 
-export async function retrieve(query: string, k=3) {
+export async function retrieve(query: string, document_id: string ,k=3) {
     const qVec = (await embed(query)).map(Number);
 
     const vectorStr = `[${qVec.join(',')}]`
@@ -19,7 +19,7 @@ export async function retrieve(query: string, k=3) {
 
     const connectionString = process.env.SUPABASE_SQL_URL!;
     const supaBasePostGresSql = postgres(connectionString)
-    const chunEmbed_SupaBase = await supaBasePostGresSql`SELECT content FROM chunk_embeddings ORDER BY embeddings <-> ${vectorStr} LIMIT ${k}`
+    const chunEmbed_SupaBase = await supaBasePostGresSql`SELECT content FROM chunk_embeddings WHERE document_id = ${document_id} ORDER BY embeddings <-> ${vectorStr} LIMIT ${k}`
     console.log(chunEmbed_SupaBase.flat().map((r: any) => ({text: r.content})))
     const supaBaseLLMResponse = await askWithContext(query, chunEmbed_SupaBase.flat().map((r: any) => ({text: r.content})))
     console.log("Result from supabase chunks LLM response:", supaBaseLLMResponse)

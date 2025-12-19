@@ -23,10 +23,22 @@ export const getPunkSongs = createServerFn({
 //   return response
 // })
 
+type LlmQueryInput = {
+  message: string;
+  pdfId: string;
+};
+
+
 export const callLlmWithQuery = createServerFn({method: "POST"})
-.inputValidator((data: string) => data)
+.inputValidator((data: LlmQueryInput) => {
+if (!data.message || !data.pdfId) {
+      throw new Error("Missing message or pdfId");
+    }
+    return data;
+})
 .handler(async({ data }) => {
-  const response = await retrieve(data, 2)
+  const { message, pdfId  } = data;
+  const response = await retrieve(message, pdfId ,2)
   return response
 })
 
