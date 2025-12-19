@@ -25,7 +25,9 @@ export const Route = createRootRoute({
         rel: 'stylesheet',
         href: appCss,
       },
-             { rel: 'icon', href: 'https://img.icons8.com/?size=100&id=ObuWtTlsoTj6&format=png&color=000000' },
+      { rel: 'icon', 
+        href: 'https://img.icons8.com/?size=100&id=ObuWtTlsoTj6&format=png&color=000000' 
+      }
     ],
   }),
 
