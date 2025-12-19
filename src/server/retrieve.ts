@@ -20,9 +20,11 @@ export async function retrieve(query: string, document_id: string ,k=3) {
     const connectionString = process.env.SUPABASE_SQL_URL!;
     const supaBasePostGresSql = postgres(connectionString)
     const chunEmbed_SupaBase = await supaBasePostGresSql`SELECT content FROM chunk_embeddings WHERE document_id = ${document_id} ORDER BY embeddings <-> ${vectorStr} LIMIT ${k}`
-    console.log(chunEmbed_SupaBase.flat().map((r: any) => ({text: r.content})))
+    // const chunEmbed_SupaBase = await supaBasePostGresSql`SELECT content FROM chunk_embeddings WHERE document_id = ${document_id}`
+    // console.log(chunEmbed_SupaBase.flat().map((r: any) => ({text: r.content})))
+    // console.log(chunEmbed_SupaBase.count)
     const supaBaseLLMResponse = await askWithContext(query, chunEmbed_SupaBase.flat().map((r: any) => ({text: r.content})))
-    console.log("Result from supabase chunks LLM response:", supaBaseLLMResponse)
+    // console.log("Result from supabase chunks LLM response:", supaBaseLLMResponse)
 
     return supaBaseLLMResponse
 }
