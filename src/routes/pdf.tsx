@@ -5,7 +5,6 @@ import {useMutation} from "@tanstack/react-query"
 import { supabase } from '@/lib/supabase';
 import { useNavigate } from "@tanstack/react-router";
 import { PDFParse } from 'pdf-parse';
-// import { getPath, getData } from 'pdf-parse/worker';
 
 export const Route = createFileRoute('/pdf')({
     component: RouteComponent,
@@ -68,7 +67,7 @@ function RouteComponent() {
 
     return () => listener.subscription.unsubscribe();
 
-  }, [userId]);
+  }, [userId, userPdfs]);
 
   const [message, setMessage] = useState("");
 
@@ -162,8 +161,12 @@ const isAskDisabled =
               fd.append("pdfContent", pdfContent ?? "");
 
               const res = await uploadPdf({ data: fd });
-              setResponse(res.message);
+              setResponse(res.message!);
 
+              setTimeout(() => {
+                setResponse("");
+              }, 4000)
+              
               setPdfUploading(false);
               formRef.current?.reset();
             }}

@@ -84,6 +84,7 @@ export async function savePdf(file: File, userId: any, pdfContent: string) {
 
       if (count! > 0) {
         console.log("PDF file is already present in storage and docs data in document table.")
+        return "PDF file is already present in storage"
       } else {
 
         // SUPABASE DOCS AND FILE INSERTION
@@ -95,7 +96,7 @@ export async function savePdf(file: File, userId: any, pdfContent: string) {
         console.log("Successfully written data to supabase:", uploadData)
       }
 
-      // supabase insertion
+      // supabase FILE PDF STORAGE insertion
       let { data: docData, error: docError } = await supabase.from("documents")
       .insert({user_id: userId, title: pdfName, file_path: uploadData?.fullPath }).select("id").single();
       if (docError) {
@@ -108,13 +109,7 @@ export async function savePdf(file: File, userId: any, pdfContent: string) {
    }
 
       await uploadFileAndSaveDocsSupaBase(file, userId);
-
 }      
 
-    // const document = {
-    //   documentId: documentId.rows[0].id ,
-    //   documentText: pdfContent
-    // }
-
-    // return document
+    return "PDF uploaded successfully"
 }

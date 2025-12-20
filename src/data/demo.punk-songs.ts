@@ -64,8 +64,7 @@ export const uploadPdf = createServerFn({method: "POST"})
   // const response = await savePdf(file, userId)
 
   return {
-    message: "PDF uploaded successfully",
-    response
+    message: response,
   }
 })
 
