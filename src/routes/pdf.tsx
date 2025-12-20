@@ -265,9 +265,13 @@ const isAskDisabled =
   {/* ================= USER PDF LIST ================= */}
 <div className="mt-10 max-w-6xl mx-auto">
   <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+    
+    <p className="px-5 py-2 text-sm text-gray-500 mt-1">
+        <span className="font-bold">Select one PDF to query:</span>
+    </p>
 
     {/* Header */}
-    <div className="px-5 py-4 border-b bg-gradient-to-r from-gray-50 to-white">
+    <div className="px-5 py-2 border-b bg-gradient-to-r from-gray-50 to-white">
       <h2 className="text-lg font-semibold text-gray-800">
         📄 Your PDFs
       </h2>
