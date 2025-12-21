@@ -94,7 +94,11 @@ function RouteComponent() {
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
-    if (error) return alert(error.message);
+    if (error) {
+      navigate({ to: "/" }) 
+      alert(error.message)
+      return 
+    };
     navigate({ to: "/" })
   };
 
