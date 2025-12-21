@@ -39,6 +39,7 @@ function RouteComponent() {
   const [userPdfs, setUserPdfs] = useState<Document[]>([]);
   const [selectedPdfId, setSelectedPdfId] = useState<string | null>(null);
   const [askLocked, setAskLocked] = useState(false);
+  const [isLoadingPdfs, setIsLoadingPdfs] = useState(false);
 
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -59,12 +60,17 @@ function RouteComponent() {
   useEffect(() => {
 
     const fetchUserPdf = async () => {
+      setIsLoadingPdfs(true);
+      
       let { data: documents, error } = await supabase.from("documents").select("id, user_id, title").eq("user_id", userId)
-      setUserPdfs(documents!)
-      // console.log(documents);
       if (error != null) {
+        setIsLoadingPdfs(false);
         console.log("error:", error)
+        return
       }
+
+      setUserPdfs(documents ?? [])
+      setIsLoadingPdfs(false); 
     }
 
     if (userId!=null) {
@@ -272,6 +278,15 @@ const isAskDisabled =
   </div>
   {/* ================= USER PDF LIST ================= */}
 <div className="mt-10 max-w-6xl mx-auto">
+  <div className="max-h-[320px] overflow-y-auto divide-y">
+      {isLoadingPdfs && (
+  <div className="px-5 py-3">
+    <div className="h-1 w-full overflow-hidden rounded bg-gray-200">
+      <div className="h-full w-1/3 animate-pulse bg-indigo-500" />
+    </div>
+  </div>
+)}
+  </div>
   <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
     
     <p className="px-5 py-2 text-sm text-gray-500 mt-1">
@@ -292,7 +307,14 @@ const isAskDisabled =
     <div className="max-h-[320px] overflow-y-auto divide-y">
       {userPdfs.length === 0 && (
         <div className="px-5 py-6 text-sm text-gray-500 text-center">
-          No PDFs uploaded yet
+          {isLoadingPdfs 
+          ? 
+          <div>
+            Loading..
+          </div> 
+          : 
+          <div>No PDFs uploaded yet</div>
+          }
         </div>
       )}
 
