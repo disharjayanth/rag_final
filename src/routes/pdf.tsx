@@ -52,6 +52,12 @@ function RouteComponent() {
       }
     );
 
+    return () => listener.subscription.unsubscribe();
+
+  }, []);
+
+  useEffect(() => {
+
     const fetchUserPdf = async () => {
       let { data: documents, error } = await supabase.from("documents").select("id, user_id, title").eq("user_id", userId)
       setUserPdfs(documents!)
@@ -64,10 +70,8 @@ function RouteComponent() {
     if (userId!=null) {
       fetchUserPdf()
     }
-
-    return () => listener.subscription.unsubscribe();
-
-  }, [userId, userPdfs]);
+    
+  }, [selectedPdfId, userId])
 
   const [message, setMessage] = useState("");
 
