@@ -69,6 +69,7 @@ function RouteComponent() {
         return
       }
 
+      // console.log(documents)
       setUserPdfs(documents ?? [])
       setIsLoadingPdfs(false); 
     }
@@ -77,7 +78,7 @@ function RouteComponent() {
       fetchUserPdf()
     }
     
-  }, [selectedPdfId, userId])
+  }, [selectedPdfId, userId, response])
 
   const [message, setMessage] = useState("");
 
