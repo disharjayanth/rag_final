@@ -61,4 +61,6 @@ export async function createVectorStoreForSupaBase(chunks: string[], documentId:
         console.error("Bulk supabase insertion error: ", error)
         throw error
     }
+
+      await new Promise(r => setTimeout(r, 150))
 }

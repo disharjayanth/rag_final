@@ -10,13 +10,30 @@ const supabase = createClient(String(process.env.YOUR_PROJECT_URL), String(proce
 console.log(process.env.YOUR_PROJECT_URL, process.env.YOUR_SUPABASE_API_KEY)
 
 
-export function chunkText(text: string, sieze = 2000) {
-    const chunks: string[] = []
-    for (let i = 0; i < text.length; i = i + 2000) {
-        chunks.push(text.slice(i, i + sieze))
-    }
-    return chunks
+// export function chunkText(text: string, sieze = 2000) {
+//     const chunks: string[] = []
+//     for (let i = 0; i < text.length; i = i + 2000) {
+//         chunks.push(text.slice(i, i + sieze))
+//     }
+//     return chunks
+// }
+
+export function chunkText(
+  text: string,
+  size = 700,
+  maxChunks = 40
+) {
+  const chunks: string[] = []
+  let i = 0
+
+  while (i < text.length && chunks.length < maxChunks) {
+    chunks.push(text.slice(i, i + size))
+    i += size
+  }
+
+  return chunks
 }
+
 
 // export async function loadPdf(filePath: string) {
 //     const parser = new PDFParse({url: filePath})
@@ -103,9 +120,34 @@ export async function savePdf(file: File, userId: any, pdfContent: string) {
         console.error("Error inserting document:", docError);
         return;
       }
+
+      // const chunks = chunkText(pdfContent)
+      
+      // await createVectorStoreForSupaBase(chunks, docData?.id)
+
       const chunks = chunkText(pdfContent)
-      // id of document docData.id
-      await createVectorStoreForSupaBase(chunks, docData?.id)
+
+if (chunks.length > 40) {
+  throw new Error("PDF too large for embedding")
+}
+
+// await createVectorStoreForSupaBase(chunks, docData?.id)
+
+    try {
+  await createVectorStoreForSupaBase(chunks, docData?.id)
+} catch (err) {
+  console.error("Embedding failed:", err)
+
+  // Optional: mark document as failed
+  await supabase
+    .from("documents")
+    .update({ embedding_status: "failed" })
+    .eq("id", docData?.id)
+
+  return "PDF uploaded, but embedding failed. Try smaller file."
+}
+
+
    }
 
       await uploadFileAndSaveDocsSupaBase(file, userId);
