@@ -18,6 +18,7 @@ console.log(process.env.YOUR_PROJECT_URL, process.env.YOUR_SUPABASE_API_KEY)
 //     return chunks
 // }
 
+// 2000 chars in single chunk meaning google may divide and create subrequests and hence error
 export function chunkText(
   text: string,
   size = 700,
@@ -92,6 +93,10 @@ export async function savePdf(file: File, userId: any, pdfContent: string) {
   //   const queryPdfName = pdfName;
   //   const documentId = await pool.query(queryDocId, [queryPdfName])
 
+  if(file.type !== "application/pdf") {
+    console.log("File is not pdf type");
+    return "Please give pdf file only"
+  }
     // SUPABASE CHECKING IF DOCUMENT TABLE HAS ALREADY FILE WITH SAME NAME IF IT DOES DONT INSERT FILE INTO STR OR DOC INTO DOCS TABLE
       const {count} = await supabase.from("documents")
       .select("*", { head: true, count: "exact"})
@@ -153,5 +158,64 @@ if (chunks.length > 40) {
       await uploadFileAndSaveDocsSupaBase(file, userId);
 }      
 
+    return "PDF uploaded successfully"
+}
+
+export async function savePdfForDocumentation(file: File, userId: any, pdfContent: string) {
+    console.log("user id:",userId)
+    const pdfName =  file.name;
+    // SUPABASE CHECKING IF DOCUMENT TABLE HAS ALREADY FILE WITH SAME NAME IF IT DOES DONT INSERT FILE INTO STR OR DOC INTO DOCS TABLE
+      const {count} = await supabase.from("documents")
+      .select("*", { head: true, count: "exact"})
+      .eq("title", pdfName)
+      .eq("user_id", userId)
+      console.log("No. of docs with same title name:", count)
+
+      if (count! > 0) {
+        console.log("PDF file is already present in storage and docs data in document table.")
+        return "PDF file is already present in storage"
+      } else {
+
+        // SUPABASE DOCS AND FILE INSERTION
+      async function uploadFileAndSaveDocsSupaBase(file: File, userId: any) {
+      let { data: uploadData , error: uploadError } = await supabase.storage.from('rag_final').upload(`${userId}/${pdfName}`, file)
+      if (uploadError) {
+        console.log("error writing to supabase file storage:", uploadError)
+      } else {
+        console.log("Successfully written data to supabase:", uploadData)
+      }
+
+      // supabase FILE PDF STORAGE insertion
+      let { data: docData, error: docError } = await supabase.from("documents")
+      .insert({user_id: userId, title: pdfName, file_path: uploadData?.fullPath }).select("id").single();
+      if (docError) {
+        console.error("Error inserting document:", docError);
+        return;
+      }
+
+      const chunks = chunkText(pdfContent)
+
+if (chunks.length > 40) {
+  throw new Error("PDF too large for embedding")
+}
+
+  try {
+  await createVectorStoreForSupaBase(chunks, docData?.id)
+} catch (err) {
+  console.error("Embedding failed:", err)
+
+  // Optional: mark document as failed
+  await supabase
+    .from("documents")
+    .update({ embedding_status: "failed" })
+    .eq("id", docData?.id)
+
+  return "PDF uploaded, but embedding failed. Try smaller file."
+  }
+}
+
+  await uploadFileAndSaveDocsSupaBase(file, userId);
+
+}      
     return "PDF uploaded successfully"
 }

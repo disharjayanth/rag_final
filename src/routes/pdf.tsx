@@ -77,7 +77,7 @@ function RouteComponent() {
     if (userId!=null) {
       fetchUserPdf()
     }
-    
+
   }, [selectedPdfId, userId, response])
 
   const [message, setMessage] = useState("");
@@ -165,7 +165,12 @@ const isAskDisabled =
                 throw new Error("Invalid file!");
               }
 
-              const pdfBuffer = await pdfFile.arrayBuffer();
+              if (pdfFile.type !== "application/pdf" || !pdfFile.name.toLowerCase().endsWith(".pdf")) {
+                setResponse("Only pdf file is allowed")
+                formRef.current?.reset();
+                // return;
+              } else {
+                 const pdfBuffer = await pdfFile.arrayBuffer();
               PDFParse.setWorker(
                 "https://cdn.jsdelivr.net/npm/pdf-parse@latest/dist/pdf-parse/web/pdf.worker.mjs"
               );
@@ -177,13 +182,14 @@ const isAskDisabled =
 
               const res = await uploadPdf({ data: fd });
               setResponse(res.message!);
-
+              formRef.current?.reset();
+              }
+          
+              setPdfUploading(false);
               setTimeout(() => {
                 setResponse("");
               }, 4000)
               
-              setPdfUploading(false);
-              formRef.current?.reset();
             }}
             encType="multipart/form-data"
             className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto"
@@ -191,7 +197,7 @@ const isAskDisabled =
             <input
               type="file"
               name="file"
-              accept="application/pdf"
+              // accept="application/pdf"
               required
               className="w-full sm:w-56 text-sm border border-gray-300 rounded-lg p-2 bg-white focus:ring-2 focus:ring-blue-400 transition"
             />

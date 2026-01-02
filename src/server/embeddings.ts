@@ -62,5 +62,6 @@ export async function createVectorStoreForSupaBase(chunks: string[], documentId:
         throw error
     }
 
+    // add throttle so that cloudflare doesnt cause subrequests
       await new Promise(r => setTimeout(r, 150))
 }

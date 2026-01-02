@@ -47,3 +47,34 @@ async function askWithContext(query: string, contextChunks: any) {
     const result = await llm.generateContent(prompt)
     return result.response.text()
 }
+
+export async function retrieveForDocumentation(query: string, document_id: string ,k=3) {
+    const qVec = (await embed(query)).map(Number);
+    const vectorStr = `[${qVec.join(',')}]`
+    const connectionString = process.env.SUPABASE_SQL_URL!;
+    const supaBasePostGresSql = postgres(connectionString)
+    const chunEmbed_SupaBase = await supaBasePostGresSql`SELECT content FROM chunk_embeddings WHERE document_id = ${document_id} 
+    ORDER BY embeddings <-> ${vectorStr} LIMIT ${k}`
+    const supaBaseLLMResponse = await askWithContext(query, chunEmbed_SupaBase.flat().map((r: any) => ({text: r.content})))
+
+    return supaBaseLLMResponse
+}
+
+async function askWithContextForDocumentation(query: string, contextChunks: any) {
+    const contextText = contextChunks.map((c: any) => c.text).join("\n\n")
+
+    const prompt = `
+    use ONLY the following context to answer.
+    If answer not found in context, say "Not Found in PDF"
+
+    CONTEXT:
+    ${contextText}
+
+
+    QUESTION:
+    ${query}
+    `;
+
+    const result = await llm.generateContent(prompt)
+    return result.response.text()
+}
